@@ -13,6 +13,7 @@
 
 using namespace std;
 
+bool USE_NN =  false;
 
 enum SlotType {EMPTY, RED, BLACK};
 SlotType board[6][7];
@@ -101,9 +102,9 @@ struct PathNode{
 	PathNode* parent;
 	SlotType nodeBoard[6][7];
 	int moveCol_guess;
-	
-	
-	
+
+
+
 	PathNode(int newID, int newstepCost, int newmoveCol, bool newwinningNode, PathNode* newparent){
 		ID = newID;
 		stepCost = newstepCost;
@@ -158,7 +159,7 @@ double ActivationPrime(double actVal){
 }
 
 
-// Set the random weights of the 
+// Set the random weights of the
 void InitNeuralNetwork(){
 	// Init in to hidden
 	for (int row = 0; row < NUM_INPUT; row++){
@@ -363,7 +364,7 @@ bool CheckWin(SlotType player){
 			winner = true;
 		}
 	}
-	
+
 
 	return winner;
 }
@@ -434,7 +435,7 @@ int GetCost(int col, int row, const SlotType player, SlotType& winner, SlotType 
 		else if (playerCount == 0 || (otherCount > 0 && playerCount > 0))
 			currCost = pow(2, otherCount) + emptyCount;
 			//currCost = otherCount;
-		else // player has spots, but computer doesn't 
+		else // player has spots, but computer doesn't
 			currCost = emptyCount;
 
 		costToGoal += currCost;
@@ -520,8 +521,10 @@ int GuessPlayerAction_Random(SlotType currBoard[6][7], SlotType otherPlayer){
 
 int GuessPlayerAction(SlotType currBoard[6][7], SlotType otherPlayer){
 	int playerGuess = -1;
-	//playerGuess = GuessPlayerAction_Random(currBoard, otherPlayer);
-	playerGuess = GuessPlayerAction_NN(currBoard, otherPlayer);
+	if(USE_NN)
+		playerGuess = GuessPlayerAction_NN(currBoard, otherPlayer);
+	else
+		//playerGuess = GuessPlayerAction_Random(currBoard, otherPlayer);
 
 	return playerGuess;
 }
@@ -568,7 +571,7 @@ bool Expand(PathNode* parentNode, SlotType& player){
 
 	for (int i = 0; i < 7; i++){
 		emptyRow = GetNextRow(i, parentNode->nodeBoard);
-		
+
 		// If the row is not full -- create the new board
 		if (emptyRow >= 0 && emptyRow < 6){
 			currNode = new PathNode(parentNode->ID + 1, parentNode->stepCost + 1, i, false, parentNode);
@@ -678,15 +681,15 @@ void computerPlay(SlotType& player, int otherPlayerAction){
 	// Calculate the error associated with the neural net based on the main player's last move
 	double nnTotalError = MeanSquaredError(otherPlayerAction);
 	TrainNeuralNet(otherPlayerAction);
-	
-	
+
+
 	int bestCol = PerformSearch(player);
 	int bestRow = GetNextRow(bestCol, board);
-	
+
 
 	board[bestRow][bestCol] = player;
 	ProcessNNInput(board);
-	
+
 }
 
 
@@ -696,20 +699,31 @@ int main(){
 
 	SlotType player;
 	int costToGoal = 0;
-	
+
 	bool keepPlaying = true;
 
 	ClearBoard();
 	InitNeuralNetwork();
 	ProcessNNInput(board);
-	
+
 	int correctGuessCount = 0;
 	int wrongGuessCount = 0;
 
 	char choice = 'y';
-	
+
 	player = RED;
 	int emptyRow = 0;
+
+	cout << "USE NN? (y or n) ";
+	cin >> choice;
+
+	if(choice == 'y')
+		USE_NN = true;
+	else
+		USE_NN = false;
+
+	choice = 'y';
+
 
 	//srand(time(NULL));
 	srand(0);
@@ -717,9 +731,10 @@ int main(){
 	//board[5][5] = RED;
 	//board[4][5] = BLACK;
 	PrintBoard(player, gameOver);
-	
+
 
 	while (keepPlaying){
+		cout << "Enter Col: ";
 		while (!gameOver && cin >> in && in != -1){
 			system("cls");
 			if (in >= 0 && in <= 6){
@@ -728,8 +743,8 @@ int main(){
 					correctGuessCount++;
 				else if (currentMoveGuess != -1)
 					wrongGuessCount++;
-				
-				cout << endl << "Current accuracy: " << ((double)wrongGuessCount/(double)(correctGuessCount+wrongGuessCount))*100.0 << "%"<< endl;
+				cout << "Correct: " << correctGuessCount << ", Wrong: " << wrongGuessCount << endl;
+				cout << endl << "Current accuracy: " << ((double)correctGuessCount/(double)(correctGuessCount+wrongGuessCount))*100.0 << "%"<< endl;
 
 				emptyRow = GetNextRow(in, board);
 				if (emptyRow > -1){
@@ -744,10 +759,10 @@ int main(){
 						player = BLACK;
 					else
 						player = RED;
-					
-					// Computer makes it's move 
+
+					// Computer makes it's move
 					computerPlay(player, in);
-					
+
 
 					if (CheckWin(player)){
 						gameOver = true;
@@ -774,7 +789,7 @@ int main(){
 
 
 			PrintBoard(player, gameOver);
-
+			cout << "Enter Col: ";
 		}
 		cout << endl << "Keep Playing?: (y or n) -- ";
 		cin >> choice;
@@ -788,6 +803,6 @@ int main(){
 			keepPlaying = false;
 		}
 	}
-	
+
 	return 0;
 }
