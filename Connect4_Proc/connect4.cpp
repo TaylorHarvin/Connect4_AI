@@ -728,6 +728,8 @@ int main(){
 					correctGuessCount++;
 				else if (currentMoveGuess != -1)
 					wrongGuessCount++;
+				
+				cout << endl << "Current accuracy: " << ((double)wrongGuessCount/(double)(correctGuessCount+wrongGuessCount))*100.0 << "%"<< endl;
 
 				emptyRow = GetNextRow(in, board);
 				if (emptyRow > -1){
