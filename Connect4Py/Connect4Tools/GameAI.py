@@ -65,14 +65,6 @@ class GameBoardAI:
         hCostRes = []
         aiRowRes = -1
 
-        '''if(parentNode.id == 75):
-            self.tmp = parentNode.GetFlatString()
-            print("75 HIT!!!!", parentNode.GetFlatString() in self.visited)
-
-        if(self.tmp != ""):
-            print("NEW: ",self.visited[self.tmp].id)'''
-
-        #print(self.tmp in self.visited and self.visited[self.tmp].id == 75)
 
         for col in range(7):
             newNodeList[col] = BoardNode(self.nextNodeId,0,0,parentNode.boardState)
@@ -124,13 +116,6 @@ class GameBoardAI:
         self.visited[rootNode.GetFlatString()] = rootNode
         while currNode.winner != SlotState.AI and expandCount < self.MAX_EXPAND:
             self.ExpandNode(currNode)
-
-            '''if(currNode.id == 75):
-                print("__________TEST________________________")
-                print(currNode)
-                print(self.visited[currNode.GetFlatString()])'''
-
-
             #print(self.priorityHeap)
             nodeId = heappop(self.priorityHeap)[1]
             currNode = copy.deepcopy(self.openList[nodeId])

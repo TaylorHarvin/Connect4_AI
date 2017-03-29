@@ -1,38 +1,25 @@
+'''
+	Developer: Taylor Harvin
+	Date: 3/29/2017
+	Purpose: Utilizes Connect4 classes: BoardNode, BoardTools, SlotState, and GameAI
+			 to play Connect4 with a user.
+'''
+
 from Connect4Tools.BoardNode import BoardNode
 from Connect4Tools.BoardTools import BoardTools
 from Connect4Tools.States.SlotState import SlotState
 from Connect4Tools.GameAI import GameBoardAI
 
-node = BoardNode(0,6,7)
-bt = BoardTools()
-boardAI = GameBoardAI(5000)
-userMove = 0
-
-'''print(bt.GetNextEmpyRow(node.boardState,0))
-
-
+node = BoardNode(0,6,7)			# Primary game board
+bt = BoardTools()			# Primary board tools
+boardAI = GameBoardAI(5000)		# Primary game AI
+userMove = 0				# Current move by user
+keepPlaying = True			# Game iteration flag
+status = []				# Game status flag (for who won if any winners)
 
 
-
-bt.PlayMove(node.boardState,0,SlotState.USER)
-#bt.ExpandNode(node)
-#bt.ExpandNode(node2)
-boardAI.PlayAIMove(node)
-#print(bt.priorityHeap)
-#print(bt.GetNormalFlatBoard(node.boardState))
-
-print(node)
-
-print(boardAI.GuessPlayerMove_NN(node.boardState))
-
-bt.PlayMove(node.boardState,0,SlotState.USER)
-boardAI.PlayAIMove(node)
-print(node)'''
-
-keepPlaying = True
-status = []
-finalStat = False
-
+# Checks for the current game status
+# NOTE: 
 def GameOver():
     global status
     global keepPlaying
@@ -49,6 +36,8 @@ def GameOver():
 
 def Continue():
     global node
+	
+	
     if GameOver():
         print(node)
         node = BoardNode(0,6,7)
@@ -58,16 +47,16 @@ def Continue():
         return False
     return True
     
-
-while(keepPlaying):
-    print(node)
-    userMove = input("Enter your move (0-6): ")
-    boardAI.Learn(node.boardState,userMove)
-    bt.PlayMove(node.boardState,int(userMove),SlotState.USER)
-    keepPlaying = Continue()
-    if keepPlaying:
-        boardAI.PlayAIMove(node)
-        keepPlaying = Continue()
+if __name__ == "__main__":
+	while(keepPlaying):
+		print(node)
+		userMove = input("Enter your move (0-6): ")
+		boardAI.Learn(node.boardState,userMove)
+		bt.PlayMove(node.boardState,int(userMove),SlotState.USER)
+		keepPlaying = Continue()
+		if keepPlaying:
+			boardAI.PlayAIMove(node)
+			keepPlaying = Continue()
         
 
 
